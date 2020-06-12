@@ -82,7 +82,10 @@ class MainActivity1 : AppCompatActivity() {
 
     private fun moveToSecondActivity() {
 
-        val intent = Intent(this, SecondActivity::class.java)
+
+
+       // val intent = Intent(this, SecondActivity::class.java)
+         val intent = Intent(this, JoyStick::class.java)
         startActivity(intent)
 
     }
