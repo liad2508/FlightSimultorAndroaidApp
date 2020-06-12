@@ -1,25 +1,15 @@
 package com.example.flightmobileapp
 
-import android.content.Intent
-import android.graphics.*
-import android.graphics.drawable.BitmapDrawable
+import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.Placeholder
 import com.google.gson.GsonBuilder
-import com.squareup.moshi.Json
-import com.squareup.moshi.Moshi
 import kotlinx.android.synthetic.main.activity_second.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -92,7 +82,8 @@ open class SecondActivity : AppCompatActivity() {
                 }
                 if (changeInRudder > relativeChangeRudder) {
                     // send to server
-                    sendDataToServer()
+                    getScreenShot() // TODO - should not be here, just for check!
+                    //sendDataToServer() // TODO - should be here!
                 }
                 Log.i("info", currentRudder.toString())
             }
@@ -106,8 +97,8 @@ open class SecondActivity : AppCompatActivity() {
         })
 
         if (isChange) {
-          //  var command = Command(currentThrottle, currentRudder, 0.0, 0.1)
-         //   checkObject.sendNetworkRequest(command)
+          // var command = Command(currentThrottle, currentRudder, 0.0, 0.1)
+          //  checkObject.sendNetworkRequest(command)
             isChange = false
         }
     }
@@ -127,22 +118,26 @@ open class SecondActivity : AppCompatActivity() {
                 call: Call<ResponseBody>,
                 response: Response<ResponseBody>
             ) { // Request was succeed
-                Log.i("info", "Succeed!!!")
+                Log.i("info", "Succeed in GET SCREEN SHOT!!!")
                 val I = response?.body()?.byteStream()
                 val B = BitmapFactory.decodeStream(I)
                 runOnUiThread {
-                    image_simulator.setImageBitmap(B)
+                    val imageView =
+                       findViewById<View>(R.id.image_simulator) as ImageView
+                    //imageView.setImageResource(R.drawable.ic_launcher_background);
+                    imageView.setImageBitmap(B)
+                   // image_simulator.setImageBitmap(B)
                 }
             }
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 // Request was not succeed
-                Log.i("info", "Request was not succeed!")
+                Log.i("info", "Request was not succeed IN SCREENSHOT!")
             }
         })
     }
 
     private fun sendDataToServer() {
-        // By Daniels
+        /* By Daniels
         Log.i("info", "change image")
         var image : ImageView = findViewById<ImageView>(R.id.image_simulator)
         val gson = GsonBuilder()
@@ -169,10 +164,10 @@ open class SecondActivity : AppCompatActivity() {
                 // Request was not succeed
                 Log.i("info", "Request was not succeed!")
             }
-        })
+        })*/
 
-       /* var command = Command(currentThrottle, currentRudder, 0.0, 0.1)
-        checkObject.sendNetworkRequest(command)*/
+       var command = Command(currentThrottle, currentRudder, 0.0, 0.1)
+        checkObject.sendNetworkRequest(command)
     }
 
 
