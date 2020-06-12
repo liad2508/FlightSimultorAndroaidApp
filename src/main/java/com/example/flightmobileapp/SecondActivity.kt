@@ -1,10 +1,7 @@
 package com.example.flightmobileapp
 
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -16,10 +13,19 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.Placeholder
+import com.google.gson.GsonBuilder
 import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
 import kotlinx.android.synthetic.main.activity_second.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 open class SecondActivity : AppCompatActivity() {
 
@@ -40,47 +46,16 @@ open class SecondActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_second)
-
-
-        //
-
-        //setContentView(R.layout.joystick);
-
-        // getting the joystick activity
-
-/*
-        Log.i("info", "create circles");
-        var joyStickView =  JoyStickView(this);
-        joyStickView.addToObserver(JoyStick());
-        setContentView(joyStickView);*/
-
-
-
-
-
-        //
-
-
-/*
-        val intent = Intent(this, JoyStick::class.java)
-
-        startActivity(intent)
-
-
-
-        var JoyStick = JoyStick()
-        JoyStick.onCreate(savedInstanceState)
-
-        linearLayout = findViewById<LinearLayout>(R.id.linear_layout)
-        layoutInflater.inflate(R.layout.joystick, linearLayout);*/
-
         Log.i("info", "create second activity");
-
-
         throttleSeekBar = findViewById<SeekBar>(R.id.throttle)
         rudderSeekBar = findViewById<SeekBar>(R.id.rudder)
 
-
+        /*GlobalScope.launch { // launch a new coroutine in background and continue
+            delay(3000L) // non-blocking delay for 1 second (default time unit is ms)
+            getScreenShot() // print after delay
+        }
+        println("Hello,") // main thread continues while coroutine is delayed
+        Thread.sleep(3000L)*/
 
         throttleSeekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -93,13 +68,10 @@ open class SecondActivity : AppCompatActivity() {
 
                 // check if changed in more than 1 %
                 if (changeInThrottle > relativeChangeThrottle) {
-
                     // send request to server
-
                     sendDataToServer()
                 }
                 lastThrottle = currentThrottle
-
                 Log.i("info", currentThrottle.toString())
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -118,40 +90,89 @@ open class SecondActivity : AppCompatActivity() {
                 if (changeInRudder < 0) {
                     changeInRudder *= -1
                 }
-
-
-
-
                 if (changeInRudder > relativeChangeRudder) {
                     // send to server
                     sendDataToServer()
-
                 }
-
-
                 Log.i("info", currentRudder.toString())
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
             }
 
         })
 
         if (isChange) {
-            var command = Command(currentThrottle, currentRudder, 0.0, 0.1)
-            checkObject.sendNetworkRequest(command)
+          //  var command = Command(currentThrottle, currentRudder, 0.0, 0.1)
+         //   checkObject.sendNetworkRequest(command)
             isChange = false
         }
     }
 
+    private fun getScreenShot() {
+        // By Daniels
+        val gson = GsonBuilder()
+            .setLenient()
+            .create()
+        val retrofit = Retrofit.Builder()
+            .baseUrl("http://10.0.2.2:60369/api/Command/")
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+        val api = retrofit.create(Api::class.java)
+        val body = api.getImg().enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(
+                call: Call<ResponseBody>,
+                response: Response<ResponseBody>
+            ) { // Request was succeed
+                Log.i("info", "Succeed!!!")
+                val I = response?.body()?.byteStream()
+                val B = BitmapFactory.decodeStream(I)
+                runOnUiThread {
+                    image_simulator.setImageBitmap(B)
+                }
+            }
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                // Request was not succeed
+                Log.i("info", "Request was not succeed!")
+            }
+        })
+    }
+
     private fun sendDataToServer() {
-        var command = Command(currentThrottle, currentRudder, 0.0, 0.1)
-        checkObject.sendNetworkRequest(command)
+        // By Daniels
+        Log.i("info", "change image")
+        var image : ImageView = findViewById<ImageView>(R.id.image_simulator)
+        val gson = GsonBuilder()
+            .setLenient()
+            .create()
+        val retrofit = Retrofit.Builder()
+            .baseUrl("http://10.0.2.2:60369/api/Command/")
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+        val api = retrofit.create(Api::class.java)
+        val body = api.getImg().enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(
+                call: Call<ResponseBody>,
+                response: Response<ResponseBody>
+            ) { // Request was succeed
+                Log.i("info", "Succeed!!!")
+                val I = response?.body()?.byteStream()
+                val B = BitmapFactory.decodeStream(I)
+                runOnUiThread {
+                    image.setImageBitmap(B)
+                }
+
+            } override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                // Request was not succeed
+                Log.i("info", "Request was not succeed!")
+            }
+        })
+
+       /* var command = Command(currentThrottle, currentRudder, 0.0, 0.1)
+        checkObject.sendNetworkRequest(command)*/
     }
 
 
@@ -160,9 +181,34 @@ open class SecondActivity : AppCompatActivity() {
     }
 
     private fun updateImageFromSimulator(view: View) {
-
-        Log.i("info", "change image")
+        /*Log.i("info", "change image")
         var image : ImageView = findViewById<ImageView>(R.id.image_simulator)
+        val gson = GsonBuilder()
+            .setLenient()
+            .create()
+        val retrofit = Retrofit.Builder()
+            .baseUrl("http://10.0.2.2:60369/api/Command/")
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+        val api = retrofit.create(Api::class.java)
+        val body = api.getImg().enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(
+                call: Call<ResponseBody>,
+                response: Response<ResponseBody>
+            ) { // Request was succeed
+                Log.i("info", "Succeed!!!")
+                val I = response?.body()?.byteStream()
+                val B = BitmapFactory.decodeStream(I)
+                runOnUiThread {
+                    image.setImageBitmap(B)
+                }
+
+
+            } override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                // Request was not succeed
+                Log.i("info", "Request was not succeed!")
+            }
+        })*/
         //image.setImageResource(R.drawable.//name of image)
     }
 
