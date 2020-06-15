@@ -9,7 +9,6 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.GsonBuilder
-import kotlinx.android.synthetic.main.activity_second.*
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -29,7 +28,7 @@ open class SecondActivity : AppCompatActivity() {
     var relativeChangeThrottle : Double = 0.01
     var relativeChangeRudder: Double = 0.02
     var isChange : Boolean = false
-    var checkObject = Check()
+    var checkObject = callServer()
 
 
 
@@ -39,6 +38,8 @@ open class SecondActivity : AppCompatActivity() {
         Log.i("info", "create second activity");
         throttleSeekBar = findViewById<SeekBar>(R.id.throttle)
         rudderSeekBar = findViewById<SeekBar>(R.id.rudder)
+        getScreenShot()
+
 
         /*GlobalScope.launch { // launch a new coroutine in background and continue
             delay(3000L) // non-blocking delay for 1 second (default time unit is ms)
@@ -104,12 +105,11 @@ open class SecondActivity : AppCompatActivity() {
     }
 
     private fun getScreenShot() {
-        // By Daniels
         val gson = GsonBuilder()
             .setLenient()
             .create()
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:60369/api/Command/")
+            .baseUrl("http://10.0.2.2:54047/")
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
         val api = retrofit.create(Api::class.java)
@@ -118,22 +118,27 @@ open class SecondActivity : AppCompatActivity() {
                 call: Call<ResponseBody>,
                 response: Response<ResponseBody>
             ) { // Request was succeed
-                Log.i("info", "Succeed in GET SCREEN SHOT!!!")
-                val I = response?.body()?.byteStream()
-                val B = BitmapFactory.decodeStream(I)
-                runOnUiThread {
-                    val imageView =
-                       findViewById<View>(R.id.image_simulator) as ImageView
-                    //imageView.setImageResource(R.drawable.ic_launcher_background);
-                    imageView.setImageBitmap(B)
-                   // image_simulator.setImageBitmap(B)
+                if(response.isSuccessful) {
+                    Log.i("info", "Succeed in GET SCREEN SHOT!!!")
+                    val I = response?.body()?.byteStream()
+                    val B = BitmapFactory.decodeStream(I)
+                    runOnUiThread {
+                        val imageView =
+                            findViewById<View>(R.id.image_simulator) as ImageView
+                        //imageView.setImageResource(R.drawable.ic_launcher_background);
+                        imageView.setImageBitmap(B)
+                        // image_simulator.setImageBitmap(B)
+                    }
                 }
+
+                Log.i("info", "Outside isSuccessful response block in Screen Shot")
             }
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 // Request was not succeed
                 Log.i("info", "Request was not succeed IN SCREENSHOT!")
             }
         })
+
     }
 
     private fun sendDataToServer() {
