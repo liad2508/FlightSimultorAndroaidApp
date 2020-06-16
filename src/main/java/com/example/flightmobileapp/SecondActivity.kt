@@ -10,6 +10,9 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -45,7 +48,12 @@ open class SecondActivity : AppCompatActivity() {
         rudderSeekBar = findViewById<SeekBar>(R.id.rudder)
         var a = findViewById<EditText>(R.id.elevator_check)
         Log.i("Info","aaaaaaaaaaaaaaaaa" + a.text.toString())
-        //getScreenShot()
+        GlobalScope.launch {
+            while (true) {
+                getScreenShot()
+                delay(4000)
+            }
+        }
 
 
         /*GlobalScope.launch { // launch a new coroutine in background and continue

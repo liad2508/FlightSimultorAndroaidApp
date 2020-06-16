@@ -32,7 +32,7 @@ class MainActivity1 : AppCompatActivity() {
        "URL4",
        "URL5")
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -42,15 +42,15 @@ class MainActivity1 : AppCompatActivity() {
 /*
         Thread {
             initDbAndList(db, urlList)
-
         }.start()
         Thread.sleep(1000)*/
 
 
         val job = GlobalScope.launch {
             initDbAndList(db, urlList)
+            delay(1000)
         }
-        //job.join()
+
 
 
 
@@ -113,9 +113,15 @@ class MainActivity1 : AppCompatActivity() {
                     urlListView.adapter = arrayAdapter
                 }
 
+                /*
                 Thread {
                     updateDB(db, urlList)
-                }.start()
+                }.start()*/
+
+                GlobalScope.launch {
+                    updateDB(db, urlList)
+                }
+
                 moveToSecondActivity()
             }
 
@@ -151,7 +157,7 @@ class MainActivity1 : AppCompatActivity() {
         }*/
     }
 
-    private suspend fun initDbAndList (db : AppDB, urlList : ArrayList<String>) {
+    private fun initDbAndList (db : AppDB, urlList : ArrayList<String>) {
 
 
       db.urlDAO().readUrl().forEach{
