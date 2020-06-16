@@ -15,8 +15,9 @@ import kotlinx.coroutines.NonCancellable.join
 import java.lang.Exception
 import java.lang.String.join
 import java.time.temporal.ValueRange
-
+import kotlinx.coroutines.*
 import kotlin.collections.ArrayList
+import kotlin.concurrent.thread
 
 
 class MainActivity1 : AppCompatActivity() {
@@ -37,13 +38,23 @@ class MainActivity1 : AppCompatActivity() {
 
        var db = Room.databaseBuilder(applicationContext,AppDB :: class.java, "URL_DB").fallbackToDestructiveMigration().build()
 
+
+/*
         Thread {
             initDbAndList(db, urlList)
 
         }.start()
+        Thread.sleep(1000)*/
 
 
-        Thread.sleep(1000)
+        val job = GlobalScope.launch {
+            initDbAndList(db, urlList)
+        }
+        //job.join()
+
+
+
+
 
 
 
@@ -140,7 +151,7 @@ class MainActivity1 : AppCompatActivity() {
         }*/
     }
 
-    private fun initDbAndList (db : AppDB, urlList : ArrayList<String>) {
+    private suspend fun initDbAndList (db : AppDB, urlList : ArrayList<String>) {
 
 
       db.urlDAO().readUrl().forEach{

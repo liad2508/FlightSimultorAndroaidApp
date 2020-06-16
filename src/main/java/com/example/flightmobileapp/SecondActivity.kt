@@ -4,6 +4,7 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
@@ -25,10 +26,14 @@ open class SecondActivity : AppCompatActivity() {
     var lastThrottle: Double = 0.0
     var currentRudder: Double = 0.0
     var lastRudder: Double = 0.0
+    var aileron : Double = 0.0
+    var elevator : Double = 0.0
     var relativeChangeThrottle : Double = 0.01
     var relativeChangeRudder: Double = 0.02
     var isChange : Boolean = false
     var checkObject = callServer()
+
+
 
 
 
@@ -38,7 +43,9 @@ open class SecondActivity : AppCompatActivity() {
         Log.i("info", "create second activity");
         throttleSeekBar = findViewById<SeekBar>(R.id.throttle)
         rudderSeekBar = findViewById<SeekBar>(R.id.rudder)
-        getScreenShot()
+        var a = findViewById<EditText>(R.id.elevator_check)
+        Log.i("Info","aaaaaaaaaaaaaaaaa" + a.text.toString())
+        //getScreenShot()
 
 
         /*GlobalScope.launch { // launch a new coroutine in background and continue
@@ -51,6 +58,13 @@ open class SecondActivity : AppCompatActivity() {
         throttleSeekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 currentThrottle = progress.toDouble() / 100.0;
+                //command.throttle = currentThrottle
+
+                /*
+                var ai = findViewById<EditText>(R.id.aileron_joystick)
+                command.aileron = ai.text.toString().toDouble()
+                var el = findViewById<EditText>(R.id.elevator_joystick)
+                command.elevator = el.text.toString().toDouble()*/
                 var changeInThrottle : Double = 0.0
                 changeInThrottle = currentThrottle - lastThrottle
                 if (changeInThrottle < 0) {
@@ -76,6 +90,12 @@ open class SecondActivity : AppCompatActivity() {
         rudderSeekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 currentRudder = (progress.toDouble() - 100) / 100.0
+                //command.rudder = currentRudder
+                /*
+                var ai = findViewById<EditText>(R.id.aileron_joystick)
+                command.aileron = ai.text.toString().toDouble()
+                var el = findViewById<EditText>(R.id.elevator_joystick)
+                command.elevator = el.text.toString().toDouble()*/
                 var changeInRudder : Double = 0.0
                 changeInRudder = currentRudder - lastRudder
                 if (changeInRudder < 0) {
@@ -83,8 +103,8 @@ open class SecondActivity : AppCompatActivity() {
                 }
                 if (changeInRudder > relativeChangeRudder) {
                     // send to server
-                    getScreenShot() // TODO - should not be here, just for check!
-                    //sendDataToServer() // TODO - should be here!
+                    // TODO - should not be here, just for check!
+                    sendDataToServer() // TODO - should be here!
                 }
                 Log.i("info", currentRudder.toString())
             }
@@ -141,38 +161,20 @@ open class SecondActivity : AppCompatActivity() {
 
     }
 
+
     private fun sendDataToServer() {
-        /* By Daniels
-        Log.i("info", "change image")
-        var image : ImageView = findViewById<ImageView>(R.id.image_simulator)
-        val gson = GsonBuilder()
-            .setLenient()
-            .create()
-        val retrofit = Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:60369/api/Command/")
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
-        val api = retrofit.create(Api::class.java)
-        val body = api.getImg().enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(
-                call: Call<ResponseBody>,
-                response: Response<ResponseBody>
-            ) { // Request was succeed
-                Log.i("info", "Succeed!!!")
-                val I = response?.body()?.byteStream()
-                val B = BitmapFactory.decodeStream(I)
-                runOnUiThread {
-                    image.setImageBitmap(B)
-                }
 
-            } override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                // Request was not succeed
-                Log.i("info", "Request was not succeed!")
-            }
-        })*/
+        //Log.i("Info","elevator is  ${command.elevator} + aileron is ${command.aileron}")
+        var a = findViewById<EditText>(R.id.elevator_check)
+        var aileronStr = a.text.toString()
+        var aileronVal = 0.0
+        if (aileronStr != "Infinity") {
+            aileronVal = aileronStr.toDouble()
+        }
 
-       var command = Command(currentThrottle, currentRudder, 0.0, 0.1)
-        checkObject.sendNetworkRequest(command)
+        Log.i("Info","aileronVar issssss ${aileronVal}")
+        var c =  Command(currentThrottle, currentRudder, 0.0, 0.0)
+        checkObject.sendNetworkRequest(c)
     }
 
 
