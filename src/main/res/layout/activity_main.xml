@@ -6,24 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity1">
 
-    <Button
-        android:id="@+id/connect"
-        android:layout_width="100dp"
-        android:layout_height="61dp"
-
-        android:layout_marginTop="542dp"
-        android:layout_marginBottom="153dp"
-        android:background="@color/colorAccent"
-        android:text="connect"
-        android:textAllCaps="true"
-        android:textStyle="bold|italic"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.942"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.8" />
-
     <ListView
         android:id="@+id/listView"
         android:layout_width="358dp"
@@ -47,23 +29,45 @@
         android:layout_marginTop="80dp"
         android:layout_marginBottom="34dp"
         android:text="Flight Control App"
-        android:textColor="@android:color/holo_orange_dark"
-        android:textSize="24sp"
+        android:textColor="?android:attr/colorActivatedHighlight"
+        android:textSize="30sp"
         app:layout_constraintBottom_toTopOf="@+id/listView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/connect"
+        android:layout_width="100dp"
+        android:layout_height="61dp"
+
+        android:layout_marginStart="297dp"
+        android:layout_marginLeft="297dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginRight="14dp"
+        android:layout_marginBottom="138dp"
+        android:background="@color/colorAccent"
+        android:text="connect"
+        android:textAllCaps="true"
+        android:textStyle="bold|italic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/listView" />
+
     <EditText
         android:id="@+id/type_url"
         android:layout_width="235dp"
         android:layout_height="61dp"
-        android:layout_marginStart="37dp"
-        android:layout_marginLeft="37dp"
-        android:layout_marginTop="27dp"
-        android:layout_marginEnd="23dp"
-        android:layout_marginRight="23dp"
-        android:layout_marginBottom="136dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginLeft="35dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="27dp"
+        android:layout_marginRight="27dp"
+        android:layout_marginBottom="130dp"
+        android:background="@android:color/holo_blue_light"
         android:ems="10"
         android:hint="Type URL..."
         android:inputType="textPersonName"
@@ -72,6 +76,26 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/listView"
-        app:layout_constraintVertical_bias="0.413" />
+        app:layout_constraintVertical_bias="0.294" />
+
+    <ImageView
+        android:id="@+id/airplane_image"
+        android:layout_width="116dp"
+        android:layout_height="101dp"
+        android:layout_marginStart="146dp"
+        android:layout_marginLeft="146dp"
+        android:layout_marginTop="37dp"
+        android:layout_marginEnd="146dp"
+        android:layout_marginRight="146dp"
+        android:layout_marginBottom="35dp"
+        android:alpha="1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/type_url"
+        app:layout_constraintVertical_bias="0.444"
+        app:srcCompat="@drawable/airplane"
+        tools:srcCompat="@drawable/airplane" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

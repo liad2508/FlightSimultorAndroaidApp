@@ -5,12 +5,15 @@ import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.EditText
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.lang.Exception
 
 //import android.support.v7.app.AppCompatActivity;
 
 class JoyStick : SecondActivity(), ObserverI {
     // Fileds
-    var callServerObj = callServer() // for the post command.
+    var callServerObj : callServer? = null // for the post command.
 
 
     /**
@@ -21,7 +24,7 @@ class JoyStick : SecondActivity(), ObserverI {
         Log.i("info", "create circlesssssssssss")
         super.onCreate(savedInstanceState)
         //setContentView(R.layout.joystick);
-
+        callServerObj = callServer(applicationContext)
         // getting the joystick activity
         val intent = intent
         Log.i("info", "create circles")
@@ -54,14 +57,21 @@ class JoyStick : SecondActivity(), ObserverI {
             totalElevator = y.toDouble() - 0.3
         }
 
-        Log.i("Info", "in joystick x is ${x} and y is ${y}")
-        var a = findViewById<EditText>(R.id.elevator_check)
-        a.setText(totalElevator.toString())
+        Log.i("Info", "in joystick x is ${totalAileron} and y is ${totalElevator}")
+
+
         var newThrottle  = currentThrottle
         var newRudder = currentRudder
 
+        val chosenURL = intent.getStringExtra("url")
         val cmd =  Command(newThrottle, newRudder, totalAileron, totalElevator)
-        callServerObj.sendNetworkRequest(cmd)
+        GlobalScope.launch {
+            try {
+                callServerObj?.sendNetworkRequest(cmd, chosenURL)
+            } catch (e : Exception) {
+
+            }
+        }
 
     }
 }

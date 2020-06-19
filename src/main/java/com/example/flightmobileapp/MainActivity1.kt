@@ -23,7 +23,7 @@ import kotlin.concurrent.thread
 class MainActivity1 : AppCompatActivity() {
 
 
-   private var connectButton: Button? = null
+   private  var  connectButton: Button? = null
    private var urlList = arrayListOf<String>(
 
        "URL1",
@@ -48,14 +48,27 @@ class MainActivity1 : AppCompatActivity() {
 
         val job = GlobalScope.launch {
             initDbAndList(db, urlList)
-            delay(1000)
+
         }
 
+         Thread.sleep(1000)
 
 
 
 
 
+
+
+         var title = findViewById<TextView>(R.id.title)
+         title.animate().rotation(360f).setDuration(2000)
+
+         var imageAp = findViewById<ImageView>(R.id.airplane_image)
+         //imageAp.animate().rotation(360f).setDuration(3000)
+
+         imageAp.translationX = -1000f
+         imageAp.translationY = -1000f
+         imageAp.animate().translationXBy(1000f).translationYBy(1000f)
+             .rotationBy(3600f).setDuration(3500)
 
 
 
@@ -80,11 +93,6 @@ class MainActivity1 : AppCompatActivity() {
                 val urlSelect = findViewById<EditText>(R.id.type_url)
 
 
-                Toast.makeText(
-                    applicationContext,
-                    "Connect " + urlSelect.text,
-                    Toast.LENGTH_LONG
-                ).show()
 
                 for (u in urlList) {
 
@@ -122,7 +130,29 @@ class MainActivity1 : AppCompatActivity() {
                     updateDB(db, urlList)
                 }
 
-                moveToSecondActivity()
+
+
+                var c =  Command(0.0, 0.0, 0.0, 0.0)
+                var conn = callServer(applicationContext)
+
+                    var check = 0.0
+                    check = conn.sendNetworkRequest(c, urlSelect.text.toString())
+                    if (check != -1.0) {
+                        Toast.makeText(
+                            applicationContext,
+                            "Connect " + urlSelect.text,
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        moveToSecondActivity()
+                    }
+                    else {
+                        Toast.makeText(
+                            applicationContext,
+                            "unable to connect to server",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
             }
 
         })
@@ -131,7 +161,10 @@ class MainActivity1 : AppCompatActivity() {
     private fun moveToSecondActivity() {
        // val intent = Intent(this, SecondActivity::class.java)
 
+
          val intent = Intent(this, JoyStick::class.java)
+        val urlSelect = findViewById<EditText>(R.id.type_url)
+        intent.putExtra("url",urlSelect.text.toString())
         startActivity(intent)
     }
 

@@ -4,7 +4,6 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
@@ -19,6 +18,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.lang.Exception
 
 open class SecondActivity : AppCompatActivity() {
 
@@ -34,24 +34,29 @@ open class SecondActivity : AppCompatActivity() {
     var relativeChangeThrottle : Double = 0.01
     var relativeChangeRudder: Double = 0.02
     var isChange : Boolean = false
-    var checkObject = callServer()
-
-
+    var checkObject : callServer? = null
 
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_second)
+        checkObject = callServer(applicationContext)
+        val chosenURL = intent.getStringExtra("url")
         Log.i("info", "create second activity");
         throttleSeekBar = findViewById<SeekBar>(R.id.throttle)
         rudderSeekBar = findViewById<SeekBar>(R.id.rudder)
-        var a = findViewById<EditText>(R.id.elevator_check)
-        Log.i("Info","aaaaaaaaaaaaaaaaa" + a.text.toString())
+
+
         GlobalScope.launch {
             while (true) {
-                getScreenShot()
-                delay(4000)
+                try {
+                    getScreenShot(chosenURL)
+                    delay(5000)
+                } catch (e : Exception) {
+
+                }
+
             }
         }
 
@@ -82,7 +87,11 @@ open class SecondActivity : AppCompatActivity() {
                 // check if changed in more than 1 %
                 if (changeInThrottle > relativeChangeThrottle) {
                     // send request to server
-                    sendDataToServer()
+                    GlobalScope.launch {
+
+                        sendDataToServer(chosenURL)
+                    }
+
                 }
                 lastThrottle = currentThrottle
                 Log.i("info", currentThrottle.toString())
@@ -111,8 +120,10 @@ open class SecondActivity : AppCompatActivity() {
                 }
                 if (changeInRudder > relativeChangeRudder) {
                     // send to server
-                    // TODO - should not be here, just for check!
-                    sendDataToServer() // TODO - should be here!
+                    GlobalScope.launch {
+                        sendDataToServer(chosenURL)
+                    }
+
                 }
                 Log.i("info", currentRudder.toString())
             }
@@ -132,12 +143,13 @@ open class SecondActivity : AppCompatActivity() {
         }
     }
 
-    private fun getScreenShot() {
+    private fun getScreenShot(url : String) {
+        //http://10.0.2.2:54047/
         val gson = GsonBuilder()
             .setLenient()
             .create()
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:54047/")
+            .baseUrl(url)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
         val api = retrofit.create(Api::class.java)
@@ -170,19 +182,23 @@ open class SecondActivity : AppCompatActivity() {
     }
 
 
-    private fun sendDataToServer() {
+    private fun sendDataToServer(s : String) {
 
-        //Log.i("Info","elevator is  ${command.elevator} + aileron is ${command.aileron}")
-        var a = findViewById<EditText>(R.id.elevator_check)
+
+        /*
         var aileronStr = a.text.toString()
         var aileronVal = 0.0
         if (aileronStr != "Infinity") {
             aileronVal = aileronStr.toDouble()
         }
 
-        Log.i("Info","aileronVar issssss ${aileronVal}")
+        Log.i("Info","aileronVar issssss ${aileronVal}")*/
         var c =  Command(currentThrottle, currentRudder, 0.0, 0.0)
-        checkObject.sendNetworkRequest(c)
+        try {
+            checkObject?.sendNetworkRequest(c, s)
+        } catch (e : Exception) {
+
+        }
     }
 
 
