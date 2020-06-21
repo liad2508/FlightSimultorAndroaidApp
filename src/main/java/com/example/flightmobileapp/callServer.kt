@@ -22,21 +22,26 @@ import java.lang.Exception
 class callServer {
 
     var context : Context? = null
+    var toast : Toast? = null
 
     constructor(context: Context?) {
         this.context = context
     }
 
-
+    /**
+     * get command and url and update the server with post request
+     */
     fun sendNetworkRequest(cmd: Command, url : String) : Double {
         var check = 0.0
         try {
+            // define timeout to read the data
             var okHttpClient: OkHttpClient? = OkHttpClient.Builder()
                 .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
                 .readTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
                 .writeTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
                 .build()
 
+            // create retrofit request
             val builder = Retrofit.Builder()
                 .baseUrl(url)
                 .addConverterFactory(GsonConverterFactory.create()).client(okHttpClient)
@@ -56,12 +61,13 @@ class callServer {
             }
             val call = client.createAccount(cmd)
 
+            // check if the post succeed or not
             call!!.enqueue(object : Callback<Command?> {
                 override fun onResponse(
                     call: Call<Command?>,
                     response: Response<Command?>
                 ) {
-                    Log.i("info", "server was open!!! P O S T")
+                    //Log.i("info", "server was open!!! P O S T")
                 }
 
                 override fun onFailure(
@@ -69,19 +75,25 @@ class callServer {
                     t: Throwable
                 ) {
                     if (t.toString().contains("failed to connect", ignoreCase = true)) {
-                        Toast.makeText(
-                            context,
-                            "Error in connection, go back to login screen",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        if (toast != null) {
+                            toast?.cancel();
+                        }
+                        else {
+                            toast =
+                                Toast.makeText(
+                                    context,
+                                    "Error in connection, go back to login screen",
+                                    Toast.LENGTH_SHORT
+                                )
+                            toast?.show()
+                        }
                     }
-                    //Log.e( "onFailure: ",t.toString());
-                    //Log.i("info", "server not open")
+
                 }
             })
         } catch (e : Exception) {
 
-            Log.e( "catch in callServer: ",e.toString());
+           // Log.e( "catch in callServer: ",e.toString());
             check = -1.0
         }
        return check

@@ -5,6 +5,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
+/**
+ * Entity class with the columns in the db
+ */
 class URL_Entity {
 
     @PrimaryKey

@@ -1,6 +1,5 @@
 package com.example.flightmobileapp
 
-
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils.join
@@ -23,6 +22,7 @@ import kotlin.concurrent.thread
 class MainActivity1 : AppCompatActivity() {
 
 
+    // define class fields
    private  var  connectButton: Button? = null
    private var urlList = arrayListOf<String>(
 
@@ -32,39 +32,29 @@ class MainActivity1 : AppCompatActivity() {
        "URL4",
        "URL5")
 
+    /**
+     * The main part of the application that will come first
+     */
      override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-       var db = Room.databaseBuilder(applicationContext,AppDB :: class.java, "URL_DB").fallbackToDestructiveMigration().build()
-
-
-/*
-        Thread {
-            initDbAndList(db, urlList)
-        }.start()
-        Thread.sleep(1000)*/
-
+        // create our db and initialize it
+       var db = Room.databaseBuilder(applicationContext,AppDB :: class.java, "URL_DB").
+       fallbackToDestructiveMigration().build()
 
         val job = GlobalScope.launch {
             initDbAndList(db, urlList)
-
         }
-
          Thread.sleep(1000)
 
 
-
-
-
-
-
+        // get the title and rotate it with animation
          var title = findViewById<TextView>(R.id.title)
          title.animate().rotation(360f).setDuration(2000)
 
+        // animation of image of airplane
          var imageAp = findViewById<ImageView>(R.id.airplane_image)
-         //imageAp.animate().rotation(360f).setDuration(3000)
-
          imageAp.translationX = -1000f
          imageAp.translationY = -1000f
          imageAp.animate().translationXBy(1000f).translationYBy(1000f)
@@ -74,16 +64,18 @@ class MainActivity1 : AppCompatActivity() {
 
         connectButton = findViewById<Button>(R.id.connect)
 
+        // create list of addresses for the url's of the server and show it
         var arrayAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, urlList)
         var urlListView: ListView = findViewById<ListView>(R.id.listView)
         urlListView.adapter = arrayAdapter
+        // show the clicked url in url text field
         urlListView.onItemClickListener = OnItemClickListener { adapterView, view, i, l ->
 
             val urlSelect = findViewById<EditText>(R.id.type_url)
             urlSelect.setText(urlList[i])
         }
 
-
+        // handle the event of click on the connect button
         connectButton?.setOnClickListener(object : View.OnClickListener{
             override fun onClick(v: View?) {
                 var lastUrl = findViewById<EditText>(R.id.type_url)
@@ -92,10 +84,8 @@ class MainActivity1 : AppCompatActivity() {
 
                 val urlSelect = findViewById<EditText>(R.id.type_url)
 
-
-
+                // check if the clicked url is exist or not
                 for (u in urlList) {
-
                     if (u.equals(lastUrl.text.toString())) {
                         existInList = true
                         index = urlList.indexOf(lastUrl.text.toString())
@@ -103,6 +93,7 @@ class MainActivity1 : AppCompatActivity() {
                     }
                 }
 
+                // update the order of the list
                 if (existInList) {
                     while (index != 0) {
                         urlList[index] = urlList[index - 1]
@@ -111,8 +102,9 @@ class MainActivity1 : AppCompatActivity() {
                     urlList[0] = lastUrl.text.toString()
                     urlListView.adapter = arrayAdapter
                 }
-                else {
 
+                // remove the last url and update the list
+                else {
                     urlList[4] = urlList[3]
                     urlList[3] = urlList[2]
                     urlList[2] = urlList[1]
@@ -121,22 +113,19 @@ class MainActivity1 : AppCompatActivity() {
                     urlListView.adapter = arrayAdapter
                 }
 
-                /*
-                Thread {
-                    updateDB(db, urlList)
-                }.start()*/
-
+                // update the db in background
                 GlobalScope.launch {
                     updateDB(db, urlList)
                 }
 
 
-
+                // check the connection with the selected server
                 var c =  Command(0.0, 0.0, 0.0, 0.0)
                 var conn = callServer(applicationContext)
 
                     var check = 0.0
                     check = conn.sendNetworkRequest(c, urlSelect.text.toString())
+                    // if the selected server connected
                     if (check != -1.0) {
                         Toast.makeText(
                             applicationContext,
@@ -144,8 +133,10 @@ class MainActivity1 : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
 
+                        // go to second activity of the app
                         moveToSecondActivity()
                     }
+                    // show message of disconnect
                     else {
                         Toast.makeText(
                             applicationContext,
@@ -158,16 +149,21 @@ class MainActivity1 : AppCompatActivity() {
         })
     }
 
+    /**
+     * go to the next activity of the app and save the selected url of the server
+     */
     private fun moveToSecondActivity() {
-       // val intent = Intent(this, SecondActivity::class.java)
 
-
-         val intent = Intent(this, JoyStick::class.java)
+        val intent = Intent(this, JoyStick::class.java)
         val urlSelect = findViewById<EditText>(R.id.type_url)
+        // "pass" the url to second activity
         intent.putExtra("url",urlSelect.text.toString())
         startActivity(intent)
     }
 
+    /**
+     * get the db and the updated url list and update the db
+     */
     private fun updateDB(db : AppDB, urlList : ArrayList<String>) {
 
         var index = 0
@@ -182,22 +178,20 @@ class MainActivity1 : AppCompatActivity() {
             }
             index++
         }
-
-        /*
-        db.urlDAO().readUrl().forEach{
-            Log.i("Info","id is: ${it.URL_id}")
-            Log.i("Info","url is: ${it.URL_name}")
-        }*/
     }
 
+    /**
+     * initialize the db and the url list
+     */
     private fun initDbAndList (db : AppDB, urlList : ArrayList<String>) {
 
-
+        /*
       db.urlDAO().readUrl().forEach{
           Log.i("Info","id is: ${it.URL_id}")
           Log.i("Info","url is: ${it.URL_name}")
-      }
+      }*/
 
+        // initialize 5 url
         for (i in 0..4) {
             var urlEntity= URL_Entity()
 
@@ -210,9 +204,7 @@ class MainActivity1 : AppCompatActivity() {
                 urlEntity.URL_name = db.urlDAO().readUrl().get(i).URL_name
             }
                urlList[i] = urlEntity.URL_name
-
         }
     }
-
 
 }

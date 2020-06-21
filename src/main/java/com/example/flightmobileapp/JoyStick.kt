@@ -13,34 +13,43 @@ import java.lang.Exception
 
 class JoyStick : SecondActivity(), ObserverI {
     // Fileds
-    var callServerObj : callServer? = null // for the post command.
+    var callServerObj : callServer? = null // for the post command
+    var changeInAileron : Double = 0.0
+    var lastAileron : Double = 0.0
+    var relativeChangeAileron: Double = 0.02
+    var changeInElevator : Double = 0.0
+    var lastElevator : Double = 0.0
+    var relativeChangeElevator: Double = 0.02
 
 
     /**
      * initializing values while creating joystick
-     * @param savedInstanceState
      */
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.i("info", "create circlesssssssssss")
+
         super.onCreate(savedInstanceState)
         //setContentView(R.layout.joystick);
         callServerObj = callServer(applicationContext)
         // getting the joystick activity
-        val intent = intent
-        Log.i("info", "create circles")
+        //val intent = intent
         val joyStickView = JoyStickView(this)
         joyStickView.addToObserver(this)
         val rootLayout = findViewById<ViewGroup>(R.id.linear_layout)
         rootLayout.addView(joyStickView)
 
-
         //setContentView(joyStickView);
     }
 
+    /**
+     * handle change in configuration
+     */
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
     }
 
+    /**
+     * calculate and update the server with the new value of the joystick
+     */
     override fun update(x: Float, y: Float) {
         var totalAileron = 0.0
         var totalElevator = 0.0
@@ -57,21 +66,39 @@ class JoyStick : SecondActivity(), ObserverI {
             totalElevator = y.toDouble() - 0.3
         }
 
-        Log.i("Info", "in joystick x is ${totalAileron} and y is ${totalElevator}")
-
 
         var newThrottle  = currentThrottle
         var newRudder = currentRudder
 
-        val chosenURL = intent.getStringExtra("url")
-        val cmd =  Command(newThrottle, newRudder, totalAileron, totalElevator)
-        GlobalScope.launch {
-            try {
-                callServerObj?.sendNetworkRequest(cmd, chosenURL)
-            } catch (e : Exception) {
+        changeInAileron = totalAileron - lastAileron
+        if (changeInAileron < 0) {
+            changeInAileron *= -1
+        }
 
+        changeInElevator = totalElevator - lastElevator
+        if (changeInElevator < 0) {
+            changeInElevator *= -1
+        }
+
+        // check if there is change in more than 1 % in joystick values
+        if (changeInAileron > relativeChangeAileron || changeInElevator > relativeChangeElevator) {
+            // get the url of the server
+            val chosenURL = intent.getStringExtra("url")
+            // create command and send to server
+            Log.i("Info", "aileron value is $totalAileron and value elevator is $totalElevator")
+            val cmd =  Command(newThrottle, newRudder, totalAileron, totalElevator)
+            GlobalScope.launch {
+                try {
+                    callServerObj?.sendNetworkRequest(cmd, chosenURL)
+                } catch (e : Exception) {
+
+                }
             }
         }
+
+        // update the last value of the joystick
+        lastAileron = totalAileron
+        lastElevator = totalElevator
 
     }
 }

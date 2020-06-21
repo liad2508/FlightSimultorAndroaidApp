@@ -6,6 +6,9 @@ import androidx.room.Query
 import androidx.room.Update
 
 @Dao
+/**
+ * interface that include the function to the db
+ */
 interface URL_DAO {
 
     @Insert

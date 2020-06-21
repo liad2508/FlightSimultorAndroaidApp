@@ -11,6 +11,7 @@ import java.util.*
 
 class JoyStickView(context: Context?) : View(context),
     ObservableI {
+    // Fields
     private var x1 = 0f
     private var y1 = 0f
     private val radius = 70f
@@ -24,7 +25,6 @@ class JoyStickView(context: Context?) : View(context),
 
     /**
      * draw oval and circle according to x,y,radius
-     * @param canvas
      */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -40,10 +40,6 @@ class JoyStickView(context: Context?) : View(context),
 
     /**
      * called when the user resize the window
-     * @param w
-     * @param h
-     * @param oldw
-     * @param oldh
      */
     public override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -66,8 +62,6 @@ class JoyStickView(context: Context?) : View(context),
 
     /**
      * change x,y according user's input, notify observers
-     * @param event
-     * @return
      */
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val action = event.actionMasked
@@ -101,9 +95,6 @@ class JoyStickView(context: Context?) : View(context),
 
     /**
      * check if user touching inside the circle
-     * @param xVal
-     * @param yVal
-     * @return
      */
     fun CheckIfInside(xVal: Float, yVal: Float): Boolean {
         val distance =
@@ -113,9 +104,6 @@ class JoyStickView(context: Context?) : View(context),
 
     /**
      * make sure give x,y inside the oval shape
-     * @param xVal
-     * @param yVal
-     * @return
      */
     fun CheckForLimit(xVal: Float, yVal: Float): Boolean {
         return oval!!.contains(xVal, yVal) &&
@@ -125,20 +113,32 @@ class JoyStickView(context: Context?) : View(context),
                 oval!!.contains(xVal - radius, yVal)
     }
 
+    /**
+     * Add to observer
+     */
     override fun addToObserver(obs: ObserverI) {
         this.obs.add(obs)
     }
 
+    /**
+     * notify observer on change
+     */
     override fun notifyObservers(x: Float, y: Float) {
         for (obs in obs) {
             obs.update(x, y)
         }
     }
 
+    /**
+     * normalize the value of the aileron in the joystick
+     */
     fun normelizeAilron(x: Float): Float {
         return (x - (startWidth + endWidth) / 2) / ((endWidth - startWidth) / 2)
     }
 
+    /**
+     * normalize the value of the elevator in the joystick
+     */
     fun normelizeElevator(y: Float): Float {
         return (y - (startHeight + endHeight) / 2) / ((startHeight - endHeight) / 2)
     }
