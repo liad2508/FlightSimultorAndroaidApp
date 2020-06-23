@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/holo_blue_light"
     tools:context=".SecondActivity">
 
 
@@ -110,7 +111,7 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/throttle"
         app:layout_constraintTop_toBottomOf="@+id/image_simulator"
-        app:layout_constraintVertical_bias="0.968" >
+        app:layout_constraintVertical_bias="0.968">
 
 
         <TextView

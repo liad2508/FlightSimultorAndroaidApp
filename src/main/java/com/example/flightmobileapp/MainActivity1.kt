@@ -43,7 +43,7 @@ class MainActivity1 : AppCompatActivity() {
        var db = Room.databaseBuilder(applicationContext,AppDB :: class.java, "URL_DB").
        fallbackToDestructiveMigration().build()
 
-        val job = GlobalScope.launch {
+         GlobalScope.launch {
             initDbAndList(db, urlList)
         }
          Thread.sleep(1000)
@@ -69,7 +69,7 @@ class MainActivity1 : AppCompatActivity() {
         var urlListView: ListView = findViewById<ListView>(R.id.listView)
         urlListView.adapter = arrayAdapter
         // show the clicked url in url text field
-        urlListView.onItemClickListener = OnItemClickListener { adapterView, view, i, l ->
+        urlListView.onItemClickListener = OnItemClickListener { _, _, i, _ ->
 
             val urlSelect = findViewById<EditText>(R.id.type_url)
             urlSelect.setText(urlList[i])
@@ -123,8 +123,8 @@ class MainActivity1 : AppCompatActivity() {
                 var c =  Command(0.0, 0.0, 0.0, 0.0)
                 var conn = callServer(applicationContext)
 
-                    var check = 0.0
-                    check = conn.sendNetworkRequest(c, urlSelect.text.toString())
+                    //var check : Double = 0.0
+                    var check : Double? = conn.sendNetworkRequest(c, urlSelect.text.toString())
                     // if the selected server connected
                     if (check != -1.0) {
                         Toast.makeText(

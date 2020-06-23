@@ -83,7 +83,7 @@ class JoyStick : SecondActivity(), ObserverI {
         // check if there is change in more than 1 % in joystick values
         if (changeInAileron > relativeChangeAileron || changeInElevator > relativeChangeElevator) {
             // get the url of the server
-            val chosenURL = intent.getStringExtra("url")
+            val chosenURL : String = intent.getStringExtra("url")
             // create command and send to server
             Log.i("Info", "aileron value is $totalAileron and value elevator is $totalElevator")
             val cmd =  Command(newThrottle, newRudder, totalAileron, totalElevator)
